@@ -1,11 +1,11 @@
+﻿
+
 #include <iostream>
 #include <string>
 #include <cmath>
-//#include "gtest.h"
-
+#include "gtest/gtest.h"
+#include <exception>
 using namespace std;
-
-
 
 constexpr int koefs[6][6] = {
  { 19    , 75     , 50     , 0      ,  0      , 0      }, //n=6
@@ -19,11 +19,12 @@ constexpr int hs[6] = { 288 , 840 , 17280 , 28350 , 89600 , 598752 };
 
 
 double func(double x){
-    return x*x*sin(x)/cos(x)/cos(x);
+    return x;
 }
 
 
 constexpr double Rectangle( double a, double b, int n, double(*func)(double) ) {
+	if (n <= 0) throw runtime_error("");
 	const double h = (b - a)/n;
 
 	double res = (func(a) + func(b))/2;
@@ -37,6 +38,7 @@ constexpr double Rectangle( double a, double b, int n, double(*func)(double) ) {
 	return res;
 }
 constexpr double Kotes( double a, double b, int n, double(*func)(double) ) {
+	if (n <= 0) throw runtime_error("");
 	const double h = (b - a) / n;
 	double res = func(a) + func(b);
 
@@ -52,8 +54,9 @@ constexpr double Kotes( double a, double b, int n, double(*func)(double) ) {
 }
 
 constexpr double ClosedType( double a, double b, int n, double(*func)(double) ) {
+	if ((n <= 5) or (n>=12)) throw runtime_error("");
 	double res = 0;
-    int N = ceil(n/2);
+    int N = n/2;
     double h = (b-a)/(n-1);
 	for (int i = 0; i < N; i+=1) {
 		res = res+koefs[n-6][i]*(func(a+i*h)+func(b-i*h));
@@ -67,14 +70,37 @@ constexpr double ClosedType( double a, double b, int n, double(*func)(double) ) 
 }
 
 constexpr double ChooseYourMethod( double a, double b, int n, double(*func)(double) ,double (*Name)(double,double,int,double(*func)(double))){
-return Name(a, b, n,func);
-}
 
-int main(){
-cout<<"Rectangle method = "                             <<ChooseYourMethod(0.0,1.0,200,func,Rectangle)<<endl;
-cout<<"Kotes formula = "                                <<ChooseYourMethod(0.0,1.0,200,func,Kotes)<<endl;
+	return Name(a, b, n,func);
+
+}
+int Factorial(int n)
+{
+	return 1;
+}  // Returns the factorial of n
+
+
+int main(int argc, char* argv[]){
+cout<<"Rectangle method = "                             <<ChooseYourMethod(0.0,1.0,200,func,Rectangle)<<endl;cout<<"Kotes formula = "                                <<ChooseYourMethod(0.0,1.0,200,func,Kotes)<<endl;
 cout<<"Closed quadrature formula with 6 points = "      <<ChooseYourMethod(0.0,1.0,6,func,ClosedType)<<endl;
 cout<<"Closed quadrature formula with with 11 points = "<<ChooseYourMethod(0.0,1.0,11,func,ClosedType)<<endl;
+testing::InitGoogleTest(&argc, argv);
+return RUN_ALL_TESTS();
 }
 
+TEST(TestAnyException, TestRectangleMethodException) {
+	ASSERT_ANY_THROW(
+		{ ChooseYourMethod(0.0,1.0,-1,func,Rectangle); }
+	);
+}
+TEST(TestAnyException, TestClozedTypeMethodException) {
+	ASSERT_NO_THROW(
+		{ ChooseYourMethod(0.0,1.0,12,func,ClosedType); }
+	);
+}
 
+TEST(TestAnyException, KotesMethodException) {
+	double tmp = Kotes(0.0, 1.0, 200, func);
+
+	EXPECT_EQ(tmp, 0.5);
+}

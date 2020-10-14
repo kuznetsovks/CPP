@@ -25,8 +25,11 @@ public:
     size_t* createRNA(size_t);
     size_t cardinality(Nucl);
     RNA& operator=(const RNA&);
+    RNA& operator!();
     bool operator!=(const RNA&);
     bool operator==(const RNA&);
+    bool isComplementary (RNA&);
+    RNA& split(size_t,bool );
     Reference operator[](size_t);
     friend RNA operator+(const RNA &,const RNA &);
 };

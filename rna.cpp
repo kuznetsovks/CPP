@@ -1,4 +1,4 @@
-
+#include <unordered_map>
 #include <utility>
 #include <iostream>
 #include <cstdint>
@@ -63,7 +63,7 @@ using namespace std;
     size_t RNA::cardinality(Nucl value)
     {
         size_t count=0;
-        size_t n,nt;
+        size_t n;
         size_t j=0;
         for (size_t i = 0; i < contsize; i++) {
             if (j==cross)
@@ -105,26 +105,26 @@ using namespace std;
     }
     bool RNA::isComplementary(RNA& b)
     {
-
-        if (this->contsize!=b.contsize)
+        RNA a(*this);
+        if (a.contsize!=b.contsize)
             {
                 throw out_of_range("bad index");
 
             }
         else{
-        for (size_t i = 0; i < ceil(1.0*this->contsize/this->cross); i++) {
-            this->cont[i]=~this->cont[i];
+        for (size_t i = 0; i < ceil(1.0*a.contsize/a.cross); i++) {
+            a.cont[i]=~a.cont[i];
             }
 
 
             size_t j=0;
             size_t n1,n2;
             Nucl nucl1,nucl2;
-            for (size_t i = 0; i < this->contsize; i++) {
-                if (j == this->cross)
+            for (size_t i = 0; i < a.contsize; i++) {
+                if (j == a.cross)
                     j = 0;
-                n1= this->cont[i/this->cross]>>2*(this->cross-1-j)&3;
-                n2= b.cont[i/this->cross]>>2*(this->cross-1-j)&3;
+                n1= a.cont[i/a.cross]>>2*(a.cross-1-j)&3;
+                n2= b.cont[i/a.cross]>>2*(a.cross-1-j)&3;
                 nucl1=static_cast<Nucl>(n1);
                 nucl2=static_cast<Nucl>(n2);
                 if (nucl2!=nucl1){
@@ -185,16 +185,34 @@ using namespace std;
     }
    Reference RNA::operator[](size_t ind)
     {
-        if ((ind>=contsize) or (ind<0))
+        if ( (ind<0))
             {
                 throw out_of_range("bad index");
             }
-            else
-            {
-                Reference a(this,ind);
-                return a;
-            }
+        else if (ind>=contsize)
+        {
+        RNA b(A,ind);
+        size_t j=0;
+        size_t n1;
+        for (size_t i = 0; i < this->contsize; i++) {
+            if (j == this->cross)
+                j = 0;
+            n1=this->cont[i/this->cross]>>2*(this->cross-1-j)&3;
+            b.cont[i/this->cross]=b.cont[i/this->cross] | n1<<2*(this->cross-1-j);
+            j++;
+        };
+        *this=b;
+        Reference bb(this,ind);
+        return bb;
+        }
+        else
+        {
+            Reference a(this,ind);
+            return a;
+        }
+
     }
+
     RNA& RNA::split(size_t ind,bool id)
     {
         if ((ind >=this->contsize) or (ind< 0))
@@ -202,11 +220,7 @@ using namespace std;
             throw out_of_range("Invalid index");
             }
         size_t len=this->contsize-ind;
-        cout<<"len"<<len<<endl;
         RNA a(A,ind), b(A,len);
-            for (size_t i = 0; i < ceil(this->contsize/16.0); i++) {
-        cout << bitset<sizeof(this->cont[i])* CHAR_BIT>(this->cont[i]) << endl;
-        }
         size_t n1;
         size_t j=0;
         for (size_t i = 0; i < ind; i++) {
@@ -218,9 +232,7 @@ using namespace std;
         }
         j=0;
         size_t jj=0;;
-        size_t nstr=0;
         for (size_t i = ind; i < this->contsize; i++) {
-                cout<<"olo"<<j<<endl;
             if ((j == cross) )
                 j = 0;
             if (j==cross-ind)
@@ -229,12 +241,8 @@ using namespace std;
             jj=cross-ind;
             }
             n1=this->cont[i/cross]>>2*(cross-1-j)&3;
-            cout<<"n=" << bitset<sizeof(n1)* CHAR_BIT>(n1) << endl;
             b.cont[(i-ind)/cross]=b.cont[(i-ind)/cross] | n1<<2*(cross-1-j-jj);
             j++;
-        }
-            for (size_t i = 0; i < ceil(ind/16.0); i++) {
-        cout << bitset<sizeof(b.cont[i])* CHAR_BIT>(b.cont[i]) << endl;
         }
         if (id==true)
         *this=a;
@@ -242,4 +250,74 @@ using namespace std;
         *this=b;
         return *this;
     }
+    RNA operator+(const RNA & a,const RNA & b)
+    {
+        size_t commonsize= a.contsize+b.contsize;
+        RNA c(A,commonsize);
+        size_t j=0;
+        size_t n1;
+        for (size_t i = 0; i < a.contsize; i++) {
+            if (j == a.cross)
+                j = 0;
+            n1=a.cont[i/a.cross]>>2*(a.cross-1-j)&3;
+            c.cont[i/a.cross]=c.cont[i/a.cross] | n1<<2*(a.cross-1-j);
+            j++;
+        }
 
+        size_t jj=j;
+        j=0;
+        for (size_t i = a.contsize; i < commonsize; i++) {
+            if ((j == b.cross) )
+                j = 0;
+            if (j==b.cross-a.contsize)
+                {
+                //j=0;
+            //jj=b.cross-a.contsize;
+            }
+            n1=b.cont[(i-a.contsize)/b.cross]>>2*(b.cross-1-j)&3;
+           c.cont[(i)/b.cross]=c.cont[(i)/b.cross] | n1<<2*(b.cross-1-j-jj);
+            j++;
+        }
+        return c;
+    }
+    size_t RNA::length() const {
+        return this->contsize;
+    }
+
+    RNA& RNA::trim(size_t ind)
+    {
+        if ((ind >=this->contsize) or (ind< 0))
+            {
+            throw out_of_range("Invalid index");
+            }
+        RNA a(A,ind);
+        size_t n1;
+        size_t j=0;
+        for (size_t i = 0; i < ind; i++) {
+            if (j == cross)
+                j = 0;
+            n1=this->cont[i/cross]>>2*(cross-1-j)&3;
+            a.cont[i/cross]=a.cont[i/cross] | n1<<2*(cross-1-j);
+            j++;
+        }
+        j=0;
+
+        *this=a;
+        return *this;
+    }
+
+    unordered_map<Nucl,int,hash<int>> RNA::cardinality()
+    {
+        unordered_map<Nucl, int, hash<int>> unomap;
+            unomap[A]=this->cardinality(A);
+            unomap[G]=this->cardinality(G);
+            unomap[C]=this->cardinality(C);
+            unomap[U]=this->cardinality(U);
+        return unomap;
+    }
+    void RNA::print()
+    {
+    for (size_t i = 0; i < ceil(1.0*this->contsize/16.0); i++) {
+    cout << bitset<sizeof(this->cont[i])* CHAR_BIT>(this->cont[i]) << endl;
+	}
+    }

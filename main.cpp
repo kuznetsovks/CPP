@@ -1,40 +1,93 @@
 #include <iostream>
 #include <cmath>
-#include "rna.h"
+#include "dna.h"
+
 using namespace std;
 
 int main()
 {
-    RNA  a(G,19);
-    RNA  b(U,19);
-    //b[18]=a[18];
-    bool g=b!=a;
-    bool h=b==a;
-    cout<<h<<endl;
-    cout<<b.contsize<<endl;
-    cout<<b.capacity<<endl;
-    for (size_t i = 0; i < ceil(19/16.0); i++) {
-    cout << bitset<sizeof(b.cont[i])* CHAR_BIT>(b.cont[i]) << endl;
-	}
-    RNA d(U,19);
-    !b;
+    RNA  a(G,16);
+    RNA  b(C,16);
 
-    bool y=b.isComplementary(a);
-    cout<<"asd"<<y<<endl;
-    for (size_t i = 0; i < ceil(19/16.0); i++) {
-    cout << bitset<sizeof(b.cont[i])* CHAR_BIT>(b.cont[i]) << endl;
-	}
-    //for (size_t i = 0; i < ceil(16/16.0); i++) {
-    //cout << bitset<sizeof(a.cont[i])* CHAR_BIT>(a.cont[i]) << endl;
-	//}
-    a.split(5,false);
-    cout<<"contsize"<<a.contsize<<endl;
-    cout<<"asd"<<endl;
-    for (size_t i = 0; i < ceil(a.contsize/16.0); i++) {
-    cout << bitset<sizeof(a.cont[i])* CHAR_BIT>(a.cont[i]) << endl;
-	}
-    cout<<ceil(1.0*b.contsize/16)<<endl;
-    for(int i=0;i<5;i++)
-    cout << i << endl;
+
+
+    cout<<"Constuctor"<<endl;
+    a.print();
+    cout<<endl;
+
+    cout<<"Operator []"<<endl;
+    a[1]=C;
+    a.print();
+    a[1]=b[14];
+    a.print();
+    //a[1000]=C;
+    //a.print();
+    cout<<endl;
+
+    cout<<"Operator ="<<endl;
+    a=b;
+    a.print();
+    cout<<endl;
+
+    cout<<"Cardinality"<<endl;
+    cout<<a.cardinality(C)<<endl;
+	unordered_map<Nucl,int,hash<int>> map = a.cardinality();
+    for( auto x:map)
+        {
+        cout<<x.first<<" - "<<x.second<<endl;
+        }
+    cout<<endl;
+
+    cout<<"Complementary"<<endl;
+    RNA  c(G,16);
+    RNA  d(C,16);
+    c.print();
+    d.print();
+    cout<<"true or false:"<<c.isComplementary(d)<<endl;
+    cout<<endl;
+
+    cout<<"DNA"<<endl;
+    DNA jj(d,c);
+    jj.print();
+    cout<<endl;
+
+    cout<<"trim"<<endl;
+    a.trim(5);
+    a.print();
+    cout<<endl;
+
+    cout<<"split"<<endl;
+    c.split(5,1);
+    c.print();
+    cout<<endl;
+
+    cout<<"operator +"<<endl;
+    RNA e=c+a;
+    e.print();
+    cout<<endl;
+
+    cout<<"length"<<endl;
+    cout<<e.length()<<endl;
+    cout<<endl;
+
+    cout<<"operator =="<<endl;
+    bool yon=a==b;
+    a.print();
+    b.print();
+    cout<<yon<<endl;
+    cout<<endl;
+
+    cout<<"operator !="<<endl;
+    yon=a!=b;
+    a.print();
+    b.print();
+    cout<<yon<<endl;
+    cout<<endl;
+
+    cout<<"operator !"<<endl;
+    a.print();
+    !a;
+    a.print();
+    cout<<endl;
     return 0;
 }

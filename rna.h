@@ -4,7 +4,7 @@
 #include <exception>
 #include <bitset>
 #include <unordered_map>
-
+using namespace std;
 class Reference;
 
 class RNA
@@ -32,4 +32,8 @@ public:
     RNA& split(size_t,bool );
     Reference operator[](size_t);
     friend RNA operator+(const RNA &,const RNA &);
+    size_t length() const;
+	RNA& trim(size_t );
+	unordered_map<Nucl,int,hash<int>> cardinality();
+	void print();
 };

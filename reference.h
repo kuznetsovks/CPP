@@ -20,5 +20,5 @@ public:
     Reference(RNA* rna,size_t ind);
     Reference& operator=(Nucl nucl);
     Reference& operator=(const Reference);
-    //Reference& operator=(Nucl);
+
 };

@@ -160,7 +160,7 @@ using namespace std;
         }
         return false;
     }
-    bool RNA::operator==(const RNA& a)
+    bool RNA::operator==(const RNA& a) const
     {
         if (contsize!=a.contsize)
             {
@@ -215,7 +215,7 @@ using namespace std;
 
     RNA& RNA::split(size_t ind,bool id)
     {
-        if ((ind >=this->contsize) or (ind< 0))
+        if ((ind >=this->contsize) || (ind< 0))
             {
             throw out_of_range("Invalid index");
             }
@@ -286,7 +286,7 @@ using namespace std;
 
     RNA& RNA::trim(size_t ind)
     {
-        if ((ind >=this->contsize) or (ind< 0))
+        if ((ind >= this->contsize) || (ind < 0))
             {
             throw out_of_range("Invalid index");
             }
@@ -306,7 +306,7 @@ using namespace std;
         return *this;
     }
 
-    unordered_map<Nucl,int,hash<int>> RNA::cardinality()
+    unordered_map<Nucl, int, hash<int>> RNA::cardinality()
     {
         unordered_map<Nucl, int, hash<int>> unomap;
             unomap[A]=this->cardinality(A);

@@ -1,15 +1,24 @@
 #include <iostream>
 #include <cmath>
 #include "dna.h"
-
+#include <ctime>
 using namespace std;
 
 int main()
 {
-    RNA  a(G,16);
+    RNA  a(G,10);
+    //a.print();
+    unsigned int start_time = clock();
+    for (size_t i = a.length(); i < 100000; i++)
+    {
+        a[i]=C;
+    }
+    unsigned int end_time = clock();
+    cout <<( end_time - start_time)/1000 << endl;
+    //a[17] = U;
+    //a.print();
+    /*
     RNA  b(C,16);
-
-
 
     cout<<"Constuctor"<<endl;
     a.print();
@@ -20,6 +29,12 @@ int main()
     a.print();
     a[1]=b[14];
     a.print();
+
+
+    //for (size_t i=a.length();i<1000000;i++)
+    //{
+     //   a[i] = C;
+   // }
     //a[1000]=C;
     //a.print();
     cout<<endl;
@@ -90,4 +105,5 @@ int main()
     a.print();
     cout<<endl;
     return 0;
+    */
 }

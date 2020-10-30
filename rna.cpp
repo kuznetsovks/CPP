@@ -60,7 +60,7 @@ using namespace std;
     }
 
 
-    size_t RNA::cardinality(Nucl value)
+    size_t RNA::cardinality(Nucl value) const
     {
         size_t count=0;
         size_t n;
@@ -103,7 +103,7 @@ using namespace std;
         }
         return *this;
     }
-    bool RNA::isComplementary(RNA& b)
+    bool RNA::isComplementary(RNA& b) const
     {
         RNA a(*this);
         if (a.contsize!=b.contsize)
@@ -137,7 +137,7 @@ using namespace std;
         }
     }
 
-    bool RNA::operator!=(const RNA& a)
+    bool RNA::operator!=(const RNA& a) const
     {
         if (contsize!=a.contsize)
             {
@@ -189,21 +189,30 @@ using namespace std;
             {
                 throw out_of_range("bad index");
             }
-        else if (ind>=contsize)
+        else if ((ind>=contsize) & (ind>capacity))
         {
         RNA b(A,ind);
         size_t j=0;
         size_t n1;
-        for (size_t i = 0; i < this->contsize; i++) {
-            if (j == this->cross)
-                j = 0;
-            n1=this->cont[i/this->cross]>>2*(this->cross-1-j)&3;
-            b.cont[i/this->cross]=b.cont[i/this->cross] | n1<<2*(this->cross-1-j);
-            j++;
-        };
+        //for (size_t i = 0; i < this->contsize; i++) {
+            memcpy(cont, b.cont, blocks * sizeof(size_t));
+           // if (j == this->cross)
+            //    j = 0;
+            n1=this->cont[blocks /this->cross]>>2*(this->cross-1-ind)&3;
+            b.cont[blocks/this->cross]=b.cont[blocks/this->cross] | n1<<2*(this->cross-1-ind);
+            //j++;
+        //}
         *this=b;
         Reference bb(this,ind);
         return bb;
+        }
+        else if ((ind >= contsize) & (ind <= capacity))
+        {
+            size_t n1;
+                n1 = this->cont[blocks / this->cross] >> 2 * (this->cross - 1 - ind) & 3;
+                cont[blocks / this->cross] = cont[blocks / this->cross] | n1 << 2 * (this->cross - 1 - ind);
+            Reference bb(this, ind);
+            return bb;
         }
         else
         {
@@ -306,7 +315,7 @@ using namespace std;
         return *this;
     }
 
-    unordered_map<Nucl, int, hash<int>> RNA::cardinality()
+    unordered_map<Nucl, int, hash<int>> RNA::cardinality() const
     {
         unordered_map<Nucl, int, hash<int>> unomap;
             unomap[A]=this->cardinality(A);

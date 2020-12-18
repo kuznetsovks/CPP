@@ -8,32 +8,36 @@
 
 using namespace std;
 
-mutex m;
+mutex mute;
 condition_variable cv;
-bool state = false;
+bool state = true;
 
 class car {
 
 public:
+
     static void drier() {
-        unique_lock<mutex> lock(m);
-
-        cout << this_thread::get_id() << " car is getting dried" << endl;
-        cv.wait(lock);
-        //painter();
-        //state = 0;
-
-        cv.notify_all();
+        for (int i=0;i<10;i++){
+            unique_lock<mutex> lock(mute);
+            cv.wait(lock, []() {return state == 0; });
+            cout << this_thread::get_id() << " car is getting dried" << endl;
+            auto int_ms = chrono::milliseconds(1);
+            this_thread::sleep_for(int_ms);
+            state = 1;
+            cv.notify_one();
+        }
     }
+
     static void painter() {
-        unique_lock<mutex> lock(m);
-
-        cout <<this_thread::get_id() << " car is getting painted" << endl;
-        cv.wait(lock);
-        //drier();
-        cv.notify_all();
-        //state = 1;
-
+        for (int i = 0; i < 10; i++) {
+            unique_lock<mutex> lock(mute);
+            cv.wait(lock,[]() {return state==1;});
+            cout << this_thread::get_id() << " car is getting painted" << endl;
+            auto int_ms = chrono::milliseconds(1);
+            this_thread::sleep_for(int_ms);
+            state = 0;
+            cv.notify_one();
+        }
     }
 };
 

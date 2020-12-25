@@ -183,6 +183,26 @@ using namespace std;
         }
         return true;
     }
+
+    void RNA::push_back(const Nucl& N) {
+        if (contsize != capacity) 
+        {
+            cont[contsize / cross] = cont[contsize / cross] | (N << sizeof(size_t) * 8 - 2 * (contsize % cross) - 2);
+            contsize++;
+        }
+        else {
+            capacity = capacity * 2;
+            size_t* tmp = createRNA(capacity);
+            memcpy(tmp, cont, contsize * 2 / 8);
+            delete[] cont;
+            cont = tmp;
+            tmp = nullptr;
+            size_t ContainerIndex = contsize / cross;
+            cont[ContainerIndex] = cont[ContainerIndex] | (N << sizeof(size_t) * 8 - 2);
+            contsize++;
+        } 
+    }
+
    Reference RNA::operator[](size_t ind)
     {
         if ( (ind<0))
@@ -192,12 +212,9 @@ using namespace std;
         else if ((ind>=contsize) & (ind>capacity))
         {
         RNA b(A,ind);
-        size_t j=0;
+
         size_t n1;
-        //for (size_t i = 0; i < this->contsize; i++) {
             memcpy(cont, b.cont, blocks * sizeof(size_t));
-           // if (j == this->cross)
-            //    j = 0;
             n1=this->cont[blocks /this->cross]>>2*(this->cross-1-ind)&3;
             b.cont[blocks/this->cross]=b.cont[blocks/this->cross] | n1<<2*(this->cross-1-ind);
             //j++;

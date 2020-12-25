@@ -63,3 +63,16 @@ TEST(TestCaseName9, TestName9) {
 	c.isComplementary(d);
 	EXPECT_TRUE(c.isComplementary(d));
 }
+
+TEST(TestCaseName10, TestName10) {
+	RNA  a(C, 10);
+//	unsigned int start_time = clock();
+	for (size_t i = a.length(); i < 1000000; i++)
+	{
+		a.push_back(G);
+	}
+
+//	unsigned int end_time = clock();
+	EXPECT_EQ(a.contsize, 1000000);
+}
+

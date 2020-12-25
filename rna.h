@@ -37,4 +37,5 @@ public:
 	RNA& trim(size_t );
 	unordered_map<Nucl,int,hash<int>> cardinality() const;
 	void print();
+    void push_back(const Nucl&);
 };

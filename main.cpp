@@ -7,14 +7,12 @@ using namespace std;
 int main()
 {
     RNA  a(G,10);
-    //a.print();
-    unsigned int start_time = clock();
-    for (size_t i = a.length(); i < 100000; i++)
-    {
-        a[i]=C;
-    }
-    unsigned int end_time = clock();
-    cout <<( end_time - start_time)/1000 << endl;
+    a.print();
+    a.push_back(A);
+    a.print();
+    
+
+    //
     //a[17] = U;
     //a.print();
     /*

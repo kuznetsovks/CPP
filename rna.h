@@ -23,6 +23,7 @@ public:
     RNA(Nucl,size_t);
     ~RNA();
     RNA(const RNA&);
+    RNA(RNA&&);
 
     size_t cardinality(Nucl) const;
     RNA& operator=(const RNA&);

@@ -11,10 +11,10 @@ int main()
     a.push_back(A);
     a.print();
     
-
+    cout << sizeof(size_t) << endl;
     //
-    //a[17] = U;
-    //a.print();
+    a[10] = U;
+    a.print();
     /*
     RNA  b(C,16);
 

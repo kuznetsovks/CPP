@@ -53,12 +53,20 @@ using namespace std;
             blocks = a.blocks;
             contsize=a.contsize;
             capacity=a.capacity;
+            delete[] cont;
             cont = createRNA(contsize);
             memcpy(cont,a.cont,blocks*sizeof(size_t));
 
         }
     }
 
+    RNA::RNA(RNA&& a) {
+        blocks = a.blocks;
+        contsize = a.contsize;
+        capacity = a.capacity;
+        cont = a.cont;
+        a.cont = nullptr;
+    }
 
     size_t RNA::cardinality(Nucl value) const
     {
@@ -89,6 +97,7 @@ using namespace std;
             blocks = a.blocks;
             contsize=a.contsize;
             capacity=a.capacity;
+            delete[] cont;
             cont = createRNA(contsize);
             memcpy(cont,a.cont,blocks*sizeof(size_t));
 
@@ -96,6 +105,7 @@ using namespace std;
         }
         return *this;
     }
+
     RNA& RNA::operator!()
     {
         for (size_t i = 0; i < ceil(1.0*this->contsize/cross); i++) {
@@ -185,7 +195,7 @@ using namespace std;
     }
 
     void RNA::push_back(const Nucl& N) {
-        if (contsize != capacity) 
+        if (contsize < capacity) 
         {
             cont[contsize / cross] = cont[contsize / cross] | (N << sizeof(size_t) * 8 - 2 * (contsize % cross) - 2);
             contsize++;
@@ -194,49 +204,26 @@ using namespace std;
             capacity = capacity * 2;
             size_t* tmp = createRNA(capacity);
             memcpy(tmp, cont, contsize * 2 / 8);
+
             delete[] cont;
             cont = tmp;
             tmp = nullptr;
-            size_t ContainerIndex = contsize / cross;
-            cont[ContainerIndex] = cont[ContainerIndex] | (N << sizeof(size_t) * 8 - 2);
+            size_t ind = contsize / cross;
+            cont[ind] = cont[ind] | (N << sizeof(size_t) * 8 - 2);
             contsize++;
         } 
     }
 
    Reference RNA::operator[](size_t ind)
     {
-        if ( (ind<0))
+        if ( (ind<0) or (ind>contsize))
             {
                 throw out_of_range("bad index");
             }
-        else if ((ind>=contsize) & (ind>capacity))
-        {
-        RNA b(A,ind);
+      
 
-        size_t n1;
-            memcpy(cont, b.cont, blocks * sizeof(size_t));
-            n1=this->cont[blocks /this->cross]>>2*(this->cross-1-ind)&3;
-            b.cont[blocks/this->cross]=b.cont[blocks/this->cross] | n1<<2*(this->cross-1-ind);
-            //j++;
-        //}
-        *this=b;
-        Reference bb(this,ind);
-        return bb;
-        }
-        else if ((ind >= contsize) & (ind <= capacity))
-        {
-            size_t n1;
-                n1 = this->cont[blocks / this->cross] >> 2 * (this->cross - 1 - ind) & 3;
-                cont[blocks / this->cross] = cont[blocks / this->cross] | n1 << 2 * (this->cross - 1 - ind);
-            Reference bb(this, ind);
-            return bb;
-        }
-        else
-        {
-            Reference a(this,ind);
-            return a;
-        }
-
+        Reference a(this, ind);
+        return a;
     }
 
     RNA& RNA::split(size_t ind,bool id)

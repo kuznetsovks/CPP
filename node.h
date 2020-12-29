@@ -1,34 +1,48 @@
 
 #pragma once
-template <typename K, typename T>
+using namespace std;
+template <typename K, typename T,typename Alloc= allocator<pair<K,T>>>
 class Node {
 private:
-	K key;
-	T t;
+	
+	pair<K, T>* KV;
 	Node* next;
-
+	Alloc Allocator;
 
 
 public:
 	Node(const K& key_, const T& t_) 
 	{
-		key = key_;
-		t = t_;
+		KV = Allocator.allocate(1);
+		KV->first = key_;
+		KV->second = t_;
 		next = nullptr;
 	}
-
-	K get_key() const
+	~Node() 
 	{
-		return key;
+		KV = nullptr;
+		Allocator.deallocate(KV, 1);
+	}
+	K& get_key() 
+	{
+		return KV->first;
 	}
 
-	T get_value() const 
+	T& get_value() 
 	{
-		return t;
+		return KV->second;//;
+	}
+	const K& get_key() const
+	{
+		return KV->first;
 	}
 
+	const T& get_value() const
+	{
+		return KV->second;//;
+	}
 	void set_value(T t_) {
-			t=t_;
+		KV->second = t_;
 	}
 
 	Node* get_next() const {
@@ -40,8 +54,8 @@ public:
 	}
 	void print() 
 	{
-		cout << "Key =" << key << endl;
-		cout << "Value = " << t << endl;
+		cout << "Key =" << KV->first << endl;
+		cout << "Value = " << KV->second << endl;
 	}
 };
 
